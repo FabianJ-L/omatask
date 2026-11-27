@@ -94,20 +94,17 @@ FocusScope {
                 Keys.onEscapePressed: { text = ""; page.forceActiveFocus() }
                 Keys.onDownPressed: page.forceActiveFocus()
             }
-            Switch {
+            Toggle {
                 text: page.width < 760 ? "" : qsTr("Group by app")
-                ToolTip.visible: hovered && text.length === 0
-                ToolTip.text: qsTr("Group by app")
                 checked: processes.grouped
                 onToggled: processes.grouped = checked
-                focusPolicy: Qt.NoFocus
             }
-            Button {
-                visible: page.width >= 620
-                text: qsTr("End task")
-                highlighted: true
+            ActionButton {
+                kind: "danger"
+                icon: "\uf00d"
+                text: page.width < 620 ? "" : qsTr("End task")
+                tip: text.length ? "" : qsTr("End task")
                 enabled: page.selected.pid !== undefined && !page.selected.kernel
-                focusPolicy: Qt.NoFocus
                 onClicked: page.endSelected(false)
             }
         }
@@ -320,10 +317,10 @@ FocusScope {
     Menu {
         id: menu
         Material.roundedScale: theme.radius
-        MenuItem { text: qsTr("End task"); enabled: !page.selected.kernel; onTriggered: page.endSelected(false) }
-        MenuItem { text: qsTr("Force end (kill)"); enabled: !page.selected.kernel; onTriggered: page.endSelected(true) }
+        MenuEntry { text: qsTr("End task"); enabled: !page.selected.kernel; onTriggered: page.endSelected(false) }
+        MenuEntry { text: qsTr("Force end (kill)"); enabled: !page.selected.kernel; onTriggered: page.endSelected(true) }
         MenuSeparator {}
-        MenuItem {
+        MenuEntry {
             text: page.selected.suspended ? qsTr("Resume") : qsTr("Suspend")
             enabled: !page.selected.kernel && !page.selected.critical
             onTriggered: processes.suspend(page.selectedKey, !page.selected.suspended)
@@ -339,7 +336,7 @@ FocusScope {
                     { text: qsTr("Below normal"), nice: 5 },
                     { text: qsTr("Low"), nice: 15 }
                 ]
-                delegate: MenuItem {
+                delegate: MenuEntry {
                     required property var modelData
                     text: modelData.text
                     checkable: true
@@ -349,7 +346,7 @@ FocusScope {
             }
         }
         MenuSeparator {}
-        MenuItem {
+        MenuEntry {
             text: page.selected.isGroup ? qsTr("Collapse or expand") : qsTr("Copy command line")
             onTriggered: {
                 if (page.selected.isGroup) { processes.toggle(page.selectedKey); return }

@@ -73,6 +73,7 @@ FocusScope {
                             color: theme.colors.darkBackground
                             Rectangle {
                                 width: parent.width * Math.min(1, (page.battery.percent || 0) / 100)
+                                Behavior on width { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
                                 height: parent.height
                                 radius: 5
                                 color: page.battery.charging ? theme.colors.green : (page.battery.percent || 0) <= 15 ? theme.colors.red : theme.accent
@@ -80,6 +81,7 @@ FocusScope {
                         }
                         Label { text: qsTr("Power over the last minute"); font.pixelSize: 12; color: theme.colors.mutedForeground }
                         UsageGraph {
+                            scrolling: true
                             Layout.fillWidth: true
                             Layout.preferredHeight: 110
                             values: page.battery.powerHistory || []
@@ -94,10 +96,13 @@ FocusScope {
                     }
                 }
 
+                // By count: cards and bars survive each sample and animate
+                // from their previous value.
                 Repeater {
-                    model: page.groups
+                    model: page.groups.length
                     delegate: Card {
-                        required property var modelData
+                        required property int index
+                        readonly property var modelData: page.groups[index] || ({ chip: "", items: [] })
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignTop
                         title: modelData.chip
@@ -105,9 +110,12 @@ FocusScope {
                             width: parent.width
                             spacing: 10
                             Repeater {
-                                model: modelData.items
+                                id: items
+                                readonly property var list: modelData.items
+                                model: list.length
                                 delegate: RowLayout {
-                                    required property var modelData
+                                    required property int index
+                                    readonly property var modelData: items.list[index] || ({})
                                     Layout.fillWidth: true
                                     spacing: 12
                                     Label {
@@ -135,7 +143,7 @@ FocusScope {
                                             radius: 3
                                             color: modelData.level === 2 ? theme.colors.red : modelData.level === 1 ? theme.colors.yellow
                                                  : modelData.kind === "fan" ? theme.colors.cyan : theme.accent
-                                            Behavior on width { NumberAnimation { duration: 300 } }
+                                            Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
                                         }
                                     }
                                     Label {

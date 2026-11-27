@@ -1,40 +1,60 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Controls.Material
 import QtQuick.Layouts
 
-// A second look before something that cannot be undone.
-Dialog {
+// A second look before something that cannot be undone. Built on a plain
+// Popup so it shares the app's buttons, corners and colors.
+Popup {
     id: dialog
+    property string title
     property string message
     property string acceptText: qsTr("OK")
+    signal accepted()
+
+    function accept() { close(); accepted() }
+
     parent: Overlay.overlay
     anchors.centerIn: parent
     width: Math.min(460, parent ? parent.width - 48 : 460)
     modal: true
-    Material.roundedScale: theme.radius
-    Material.background: theme.colors.lighterBackground
+    focus: true
+    padding: 24
+    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
-    contentItem: Label {
-        width: dialog.availableWidth
-        text: dialog.message
-        wrapMode: Text.Wrap
-        color: theme.colors.foreground
-        font.pixelSize: 13
+    background: Rectangle {
+        radius: Math.min(8, theme.radius)
+        color: theme.colors.lighterBackground
+        border.color: theme.colors.border
     }
-    footer: DialogButtonBox {
-        Material.background: "transparent"
-        Button {
-            text: qsTr("Cancel")
-            flat: true
-            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+    Overlay.modal: Rectangle { color: Qt.alpha(theme.colors.darkerBackground, 0.6) }
+
+    contentItem: ColumnLayout {
+        spacing: 14
+        Label {
+            Layout.fillWidth: true
+            text: dialog.title
+            wrapMode: Text.Wrap
+            font.pixelSize: 16
+            font.weight: Font.DemiBold
+            color: theme.colors.brightForeground
         }
-        Button {
-            text: dialog.acceptText
-            highlighted: true
-            Material.accent: theme.colors.red
-            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+        Label {
+            Layout.fillWidth: true
+            text: dialog.message
+            wrapMode: Text.Wrap
+            font.pixelSize: 13
+            color: theme.colors.foreground
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.topMargin: 6
+            spacing: 8
+            Item { Layout.fillWidth: true }
+            ActionButton { kind: "ghost"; text: qsTr("Cancel"); onClicked: dialog.close() }
+            ActionButton { kind: "danger"; icon: ""; text: dialog.acceptText; onClicked: dialog.accept() }
         }
     }
-    onOpened: footer.forceActiveFocus()
+
+    // Enter confirms; Esc cancels through the close policy.
+    Shortcut { sequences: ["Return", "Enter"]; enabled: dialog.visible; onActivated: dialog.accept() }
 }

@@ -8,6 +8,11 @@
 #include <QFile>
 #include <QFileInfo>
 #include <time.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <dirent.h>
+#include <fcntl.h>
 #include <unistd.h>
 
 static qint64 monotonicNs() {
@@ -32,28 +37,52 @@ void GpuClients::scan(bool full) {
     if (full) {
         m_fds.clear();
         m_nvidiaPids.clear();
-        const auto pids = QDir(m_root).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-        for (const auto &name : pids) {
-            bool ok = false;
-            const int pid = name.toInt(&ok);
-            if (!ok || pid == self)
+        // Plain POSIX: a full scan resolves every descriptor of every
+        // process, tens of thousands of links on a busy desktop.
+        const QByteArray root = QFile::encodeName(m_root);
+        DIR *procDir = opendir(root.constData());
+        char path[512], target[256];
+        while (procDir) {
+            const dirent *entry = readdir(procDir);
+            if (!entry)
+                break;
+            if (entry->d_name[0] < '1' || entry->d_name[0] > '9')
                 continue;
-            const QString fdDir = m_root + '/' + name + "/fd";
+            const int pid = atoi(entry->d_name);
+            if (pid == self)
+                continue;
+            snprintf(path, sizeof path, "%s/%d/fd", root.constData(), pid);
+            // Unreadable for other users' processes; those are simply skipped.
+            const int dirFd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+            if (dirFd < 0)
+                continue;
+            DIR *fdDir = fdopendir(dirFd);
+            if (!fdDir) {
+                close(dirFd);
+                continue;
+            }
             QList<Fd> fds;
             bool nvidia = false;
-            // Unreadable for other users' processes; those are simply skipped.
-            for (const auto &fdName : QDir(fdDir).entryList(QDir::Files | QDir::System | QDir::NoDotAndDotDot)) {
-                const QString target = QFile::symLinkTarget(fdDir + '/' + fdName);
-                if (target.startsWith("/dev/dri/"))
-                    fds.append({fdName.toInt(), true});
-                else if (target.startsWith("/dev/nvidia") && target != "/dev/nvidia-uvm-tools")
+            while (const dirent *fdEntry = readdir(fdDir)) {
+                if (fdEntry->d_name[0] < '0' || fdEntry->d_name[0] > '9')
+                    continue;
+                const ssize_t n = readlinkat(dirFd, fdEntry->d_name, target, sizeof target - 1);
+                if (n <= 5 || strncmp(target, "/dev/", 5) != 0)
+                    continue;
+                target[n] = 0;
+                if (strncmp(target, "/dev/dri/", 9) == 0)
+                    fds.append({atoi(fdEntry->d_name), true});
+                else if (strncmp(target, "/dev/nvidia", 11) == 0 && strcmp(target, "/dev/nvidia-uvm-tools") != 0)
                     nvidia = true;
             }
+            closedir(fdDir);
             if (!fds.isEmpty())
                 m_fds.insert(pid, fds);
             if (nvidia)
                 m_nvidiaPids.insert(pid);
         }
+        if (procDir)
+            closedir(procDir);
     }
 
     QHash<int, Usage> usage;

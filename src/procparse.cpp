@@ -7,6 +7,8 @@
 #include <QJsonObject>
 #include <QLocale>
 #include <QRegularExpression>
+#include <fcntl.h>
+#include <unistd.h>
 
 namespace ProcParse {
 
@@ -107,50 +109,76 @@ QHash<QString, NetCounters> netdev(const QString &text) {
     return result;
 }
 
-bool pidStat(const QString &text, PidStat *out) {
+// Unsigned number at p, skipping leading blanks; advances p past it.
+static quint64 number(const char *&p, const char *end) {
+    while (p < end && (*p == ' ' || *p == '\t'))
+        ++p;
+    bool negative = p < end && *p == '-';
+    if (negative)
+        ++p;
+    quint64 v = 0;
+    while (p < end && *p >= '0' && *p <= '9')
+        v = v * 10 + quint64(*p++ - '0');
+    return negative ? quint64(-qint64(v)) : v;
+}
+
+static quint64 field(const QByteArray &text, const char *key) {
+    const int at = text.indexOf(key);
+    if (at < 0)
+        return 0;
+    const char *p = text.constData() + at + qstrlen(key);
+    return number(p, text.constData() + text.size());
+}
+
+bool pidStat(const QByteArray &text, PidStat *out) {
     // The name sits in parentheses and may itself contain spaces or ')'.
     const int open = text.indexOf('('), close = text.lastIndexOf(')');
-    if (open < 0 || close < open)
+    if (open < 0 || close < open || close + 2 >= text.size())
         return false;
     out->pid = text.left(open).trimmed().toInt();
-    out->comm = text.mid(open + 1, close - open - 1);
-    const auto f = text.mid(close + 2).split(' ', Qt::SkipEmptyParts);
-    // f[0] is field 3 (state) of proc_pid_stat(5).
-    if (f.size() < 20)
+    out->comm = QString::fromUtf8(text.constData() + open + 1, close - open - 1);
+    const char *p = text.constData() + close + 2, *end = text.constData() + text.size();
+    // Field 3 of proc_pid_stat(5) is the state; the rest are numbers.
+    out->state = QChar(*p++);
+    quint64 f[20] = {};
+    for (int i = 1; i < 20 && p < end; ++i)
+        f[i] = number(p, end);
+    if (p > end)
         return false;
-    out->state = f[0].isEmpty() ? QChar('?') : f[0][0];
-    out->ppid = f[1].toInt();
-    out->ticks = f[11].toULongLong() + f[12].toULongLong();
-    out->nice = f[16].toInt();
-    out->threads = f[17].toInt();
-    out->startTicks = f[19].toULongLong();
+    out->ppid = int(f[1]);
+    out->ticks = f[11] + f[12];
+    out->nice = int(qint64(f[16]));
+    out->threads = int(f[17]);
+    out->startTicks = f[19];
     return true;
 }
-
-PidStatus pidStatus(const QString &text) {
+PidStatus pidStatus(const QByteArray &text) {
     PidStatus s;
-    for (const auto &line : text.split('\n')) {
-        if (line.startsWith("Uid:"))
-            s.uid = line.mid(4).split('\t', Qt::SkipEmptyParts).value(0).trimmed().toUInt();
-        else if (line.startsWith("RssAnon:"))
-            s.rssAnon = line.mid(8).trimmed().split(' ').value(0).toULongLong() * 1024;
-        else if (line.startsWith("VmRSS:"))
-            s.rss = line.mid(6).trimmed().split(' ').value(0).toULongLong() * 1024;
-    }
+    s.uid = uint(field(text, "\nUid:"));
+    s.rssAnon = field(text, "\nRssAnon:") * 1024;
+    s.rss = field(text, "\nVmRSS:") * 1024;
     return s;
 }
-
-PidIo pidIo(const QString &text) {
+PidIo pidIo(const QByteArray &text) {
     PidIo io;
-    for (const auto &line : text.split('\n')) {
-        if (line.startsWith("read_bytes:"))
-            io.readBytes = line.mid(11).trimmed().toULongLong();
-        else if (line.startsWith("write_bytes:"))
-            io.writeBytes = line.mid(12).trimmed().toULongLong();
-    }
+    io.readBytes = field(text, "\nread_bytes:");
+    io.writeBytes = field(text, "\nwrite_bytes:");
     return io;
 }
 
+QByteArray readSmall(const char *path) {
+    const int fd = ::open(path, O_RDONLY | O_CLOEXEC);
+    if (fd < 0)
+        return {};
+    char buffer[8192];
+    const ssize_t n = ::read(fd, buffer, sizeof buffer);
+    ::close(fd);
+    // A leading newline lets "\nKey:" lookups match the first line too.
+    QByteArray out("\n");
+    if (n > 0)
+        out.append(buffer, n);
+    return out;
+}
 DrmClient drmFdinfo(const QString &text) {
     DrmClient c;
     for (const auto &line : text.split('\n')) {

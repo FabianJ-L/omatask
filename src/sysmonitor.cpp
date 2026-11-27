@@ -125,8 +125,13 @@ void SysMonitor::sample() {
 
     // Per-process GPU use is needed every tick on the process list; elsewhere
     // a slow full scan is enough to know whether the dGPU has clients.
+    // Per-process GPU use is only shown on the process list, so the cheap
+    // reread of known GPU clients runs there; the full descriptor walk that
+    // finds new clients (and tells whether the dGPU is in use) runs rarely.
     const bool processes = m_activePage == ProcessesPage;
-    m_gpu.scan(m_tick % 5 == 0 || (processes && m_tick % 3 == 0));
+    const bool full = m_tick % (processes ? 10 : 30) == 0;
+    if (full || processes)
+        m_gpu.scan(full);
     ++m_tick;
 
     QVariantList devices;
@@ -137,7 +142,10 @@ void SysMonitor::sample() {
     sampleNetwork(devices);
     m_devices = devices;
     sampleBattery();
-    sampleSensors();
+    // Some hwmon drivers (laptop fans through the EC, NVMe) take milliseconds
+    // per read, and nothing outside the sensors page shows them.
+    if (m_activePage == SensorsPage || m_sensors.isEmpty())
+        sampleSensors();
     emit sampled();
 }
 

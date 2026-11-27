@@ -54,11 +54,13 @@ FocusScope {
                 anchors.margins: 10
                 spacing: 6
                 clip: true
-                model: monitor.devices
+                // By count, so tiles keep their graphs between samples.
+                model: monitor.devices.length
                 boundsBehavior: Flickable.StopAtBounds
                 delegate: Rectangle {
                     id: tile
-                    required property var modelData
+                    required property int index
+                    readonly property var modelData: monitor.devices[index] || ({})
                     readonly property bool current: page.device && page.device.id === modelData.id
                     width: ListView.view.width
                     height: 66
@@ -159,12 +161,12 @@ FocusScope {
                     font.pixelSize: 12
                     color: theme.colors.lightForeground
                 }
-                Button {
-                    visible: page.device && page.device.kind === "cpu"
-                    flat: true
-                    focusPolicy: Qt.NoFocus
-                    text: page.showCores ? qsTr("Overall (C)") : qsTr("Logical processors (C)")
-                    onClicked: page.showCores = !page.showCores
+                Segmented {
+                    visible: page.device !== null && page.device.kind === "cpu"
+                    small: true
+                    options: [qsTr("Overall"), qsTr("Logical processors")]
+                    current: page.showCores ? 1 : 0
+                    onPicked: index => page.showCores = index === 1
                 }
             }
 
@@ -175,6 +177,7 @@ FocusScope {
 
                 UsageGraph {
                     anchors.fill: parent
+                    scrolling: true
                     visible: !(page.showCores && page.device && page.device.kind === "cpu")
                     values: page.device ? page.device.history : []
                     values2: page.device && page.device.history2 ? page.device.history2 : []
@@ -193,10 +196,10 @@ FocusScope {
                     rows: Math.ceil(values.length / Math.max(1, columns))
                     spacing: 6
                     Repeater {
-                        model: cores.values
+                        model: cores.values.length
                         delegate: Rectangle {
-                            required property var modelData
                             required property int index
+                            readonly property real modelData: cores.values[index] || 0
                             width: (cores.width - (cores.columns - 1) * cores.spacing) / cores.columns
                             height: (cores.height - (cores.rows - 1) * cores.spacing) / cores.rows
                             color: theme.colors.darkBackground
@@ -208,7 +211,7 @@ FocusScope {
                                 width: parent.width - 2
                                 height: (parent.height - 2) * Math.min(1, modelData / 100)
                                 color: Qt.alpha(win.loadColor(modelData), 0.45)
-                                Behavior on height { NumberAnimation { duration: 200 } }
+                                Behavior on height { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
                             }
                             Label {
                                 anchors.left: parent.left

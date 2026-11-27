@@ -139,7 +139,7 @@ FocusScope {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 56
-            visible: page.selected !== null
+            visible: page.selected !== null && page.selected !== undefined
             color: theme.colors.darkBackground
             Rectangle { width: parent.width; height: 1; color: theme.colors.border }
             RowLayout {
@@ -155,14 +155,14 @@ FocusScope {
                     font.pixelSize: 12
                     color: theme.colors.lightForeground
                 }
-                Button { text: qsTr("Start"); enabled: page.selected && !page.selected.running; focusPolicy: Qt.NoFocus; onClicked: page.act("start") }
-                Button { text: qsTr("Stop"); enabled: page.selected && page.selected.running; focusPolicy: Qt.NoFocus; onClicked: page.act("stop") }
-                Button { text: qsTr("Restart"); enabled: page.selected !== null; focusPolicy: Qt.NoFocus; onClicked: page.act("restart") }
-                Button {
+                ActionButton { icon: "\uf04b"; text: qsTr("Start"); enabled: page.selected !== null && !page.selected.running; onClicked: page.act("start") }
+                ActionButton { icon: "\uf04d"; text: qsTr("Stop"); kind: "danger"; enabled: page.selected !== null && page.selected.running; onClicked: page.act("stop") }
+                ActionButton { icon: "\uf01e"; text: qsTr("Restart"); enabled: page.selected !== null; onClicked: page.act("restart") }
+                ActionButton {
                     visible: page.selected && (page.selected.enabled === "enabled" || page.selected.enabled === "disabled")
                     text: page.selected && page.selected.enabled === "enabled" ? qsTr("Disable autostart") : qsTr("Enable autostart")
-                    flat: true
-                    focusPolicy: Qt.NoFocus
+                    kind: "ghost"
+                    icon: "\uf135"
                     onClicked: page.act(page.selected.enabled === "enabled" ? "disable" : "enable")
                 }
             }
@@ -172,11 +172,11 @@ FocusScope {
     Menu {
         id: menu
         Material.roundedScale: theme.radius
-        MenuItem { text: qsTr("Start"); enabled: page.selected && !page.selected.running; onTriggered: page.act("start") }
-        MenuItem { text: qsTr("Stop"); enabled: page.selected && page.selected.running; onTriggered: page.act("stop") }
-        MenuItem { text: qsTr("Restart"); onTriggered: page.act("restart") }
+        MenuEntry { text: qsTr("Start"); enabled: page.selected && !page.selected.running; onTriggered: page.act("start") }
+        MenuEntry { text: qsTr("Stop"); enabled: page.selected && page.selected.running; onTriggered: page.act("stop") }
+        MenuEntry { text: qsTr("Restart"); onTriggered: page.act("restart") }
         MenuSeparator {}
-        MenuItem { text: qsTr("Enable autostart"); enabled: page.selected && page.selected.enabled === "disabled"; onTriggered: page.act("enable") }
-        MenuItem { text: qsTr("Disable autostart"); enabled: page.selected && page.selected.enabled === "enabled"; onTriggered: page.act("disable") }
+        MenuEntry { text: qsTr("Enable autostart"); enabled: page.selected && page.selected.enabled === "disabled"; onTriggered: page.act("enable") }
+        MenuEntry { text: qsTr("Disable autostart"); enabled: page.selected && page.selected.enabled === "enabled"; onTriggered: page.act("disable") }
     }
 }

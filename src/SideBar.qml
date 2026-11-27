@@ -111,16 +111,16 @@ Rectangle {
         Item { Layout.fillHeight: true }
 
         // A glance at the machine, whichever page is open.
+        // A fixed count keeps these rows alive between samples, so the bars
+        // glide from their last value instead of being rebuilt from zero.
         Repeater {
-            model: bar.compact ? [] : summary
-            readonly property var summary: [
-                { label: qsTr("CPU"), value: monitor.cpuPercent },
-                { label: qsTr("Memory"), value: monitor.memPercent },
-                { label: qsTr("GPU"), value: monitor.gpuPercent },
-                { label: qsTr("Disk"), value: monitor.diskPercent }
-            ]
+            model: bar.compact ? 0 : 4
             delegate: ColumnLayout {
-                required property var modelData
+                required property int index
+                readonly property var modelData: ({
+                    label: [qsTr("CPU"), qsTr("Memory"), qsTr("GPU"), qsTr("Disk")][index],
+                    value: [monitor.cpuPercent, monitor.memPercent, monitor.gpuPercent, monitor.diskPercent][index]
+                })
                 Layout.fillWidth: true
                 Layout.leftMargin: 8
                 Layout.rightMargin: 8
@@ -150,7 +150,7 @@ Rectangle {
                         height: parent.height
                         radius: 2
                         color: win.loadColor(modelData.value)
-                        Behavior on width { NumberAnimation { duration: 250 } }
+
                     }
                 }
             }

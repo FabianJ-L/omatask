@@ -49,7 +49,7 @@ struct PidStat {
     int nice = 0;
     int threads = 0;
 };
-bool pidStat(const QString &text, PidStat *out);
+bool pidStat(const QByteArray &text, PidStat *out);
 
 // The fields OmaTask reads from /proc/<pid>/status.
 struct PidStatus {
@@ -57,13 +57,18 @@ struct PidStatus {
     quint64 rssAnon = 0;   // bytes, the private memory Windows calls "working set (private)"
     quint64 rss = 0;
 };
-PidStatus pidStatus(const QString &text);
+PidStatus pidStatus(const QByteArray &text);
 
 struct PidIo {
     quint64 readBytes = 0;
     quint64 writeBytes = 0;
 };
-PidIo pidIo(const QString &text);
+PidIo pidIo(const QByteArray &text);
+
+// Reads a small /proc or /sys file with plain POSIX calls. The process list
+// reads three of these per process every second, and QFile's overhead
+// there costs more than the reading itself.
+QByteArray readSmall(const char *path);
 
 // One DRM client from /proc/<pid>/fdinfo/<fd>.
 struct DrmClient {

@@ -7,10 +7,13 @@ Flow {
     id: flow
     property var stats: []
     spacing: 22
+    // Indexed by count, so values update in place instead of every row
+    // being recreated (and flickering) on each sample.
     Repeater {
-        model: flow.stats
+        model: flow.stats.length
         delegate: ColumnLayout {
-            required property var modelData
+            required property int index
+            readonly property var modelData: flow.stats[index] || ["", ""]
             width: Math.max(150, valueLabel.implicitWidth)
             spacing: 1
             Label {

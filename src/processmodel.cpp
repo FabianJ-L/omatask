@@ -11,6 +11,9 @@
 #include <functional>
 #include <QStandardPaths>
 #include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <dirent.h>
 #include <csignal>
 #include <pwd.h>
 #include <sys/resource.h>
@@ -131,14 +134,22 @@ void ProcessModel::scan() {
     const int cores = m_monitor ? m_monitor->coreCount() : 1;
     const auto gpu = m_monitor ? m_monitor->gpuClients().usage() : QHash<int, GpuClients::Usage>();
 
-    for (const auto &entry : QDir(m_root).entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-        bool ok = false;
-        const int pid = entry.toInt(&ok);
-        if (!ok)
+    // Plain POSIX here: this loop reads three files for each of several
+    // hundred processes every second, and Qt's file classes cost more than
+    // the reading.
+    const QByteArray root = QFile::encodeName(m_root);
+    DIR *procDir = opendir(root.constData());
+    if (!procDir)
+        return;
+    char path[512];
+    while (const dirent *entry = readdir(procDir)) {
+        if (entry->d_name[0] < '1' || entry->d_name[0] > '9')
             continue;
-        const QString dir = m_root + '/' + entry;
+        const int pid = atoi(entry->d_name);
+        const QString dir = m_root + '/' + QLatin1String(entry->d_name);
         ProcParse::PidStat st;
-        if (!ProcParse::pidStat(readText(dir + "/stat"), &st))
+        snprintf(path, sizeof path, "%s/%d/stat", root.constData(), pid);
+        if (!ProcParse::pidStat(ProcParse::readSmall(path), &st))
             continue;
         Proc p;
         const auto old = m_procs.constFind(pid);
@@ -153,11 +164,19 @@ void ProcessModel::scan() {
         p.ticks = st.ticks;
         p.startTicks = st.startTicks;
         p.kernel = pid == 2 || st.ppid == 2;
-        const auto status = ProcParse::pidStatus(readText(dir + "/status"));
-        p.uid = status.uid;
-        p.mem = status.rssAnon ? status.rssAnon : status.rss;
-        const auto io = ProcParse::pidIo(readText(dir + "/io"));
-        p.ioBytes = io.readBytes + io.writeBytes;
+        // Kernel threads have no memory or I/O of their own to read.
+        if (!p.kernel) {
+            snprintf(path, sizeof path, "%s/%d/status", root.constData(), pid);
+            const auto status = ProcParse::pidStatus(ProcParse::readSmall(path));
+            p.uid = status.uid;
+            p.mem = status.rssAnon ? status.rssAnon : status.rss;
+            // Only readable for one's own processes; others fail fast.
+            if (p.uid == m_myUid) {
+                snprintf(path, sizeof path, "%s/%d/io", root.constData(), pid);
+                const auto io = ProcParse::pidIo(ProcParse::readSmall(path));
+                p.ioBytes = io.readBytes + io.writeBytes;
+            }
+        }
         if (known) {
             p.cmd = old->cmd;
             p.exe = old->exe;
@@ -192,6 +211,7 @@ void ProcessModel::scan() {
         p.user = m_users.value(p.uid);
         procs.insert(pid, p);
     }
+    closedir(procDir);
     m_procs = procs;
 }
 

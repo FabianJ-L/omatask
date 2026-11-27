@@ -21,7 +21,7 @@ FocusScope {
             title: qsTr("Startup")
             subtitle: qsTr("%n entries", "", services.startup.length)
             BusyIndicator { running: services.busy; visible: running; Layout.preferredHeight: 28; Layout.preferredWidth: 28 }
-            Button { text: qsTr("Refresh"); flat: true; focusPolicy: Qt.NoFocus; onClicked: services.refreshStartup() }
+            ActionButton { icon: "\uf021"; text: qsTr("Refresh"); onClicked: services.refreshStartup() }
         }
 
         Flickable {
@@ -100,10 +100,9 @@ FocusScope {
                                             font.pixelSize: 12
                                             color: theme.colors.lightForeground
                                         }
-                                        Switch {
+                                        Toggle {
                                             visible: modelData.toggleable
                                             checked: modelData.enabled
-                                            focusPolicy: Qt.NoFocus
                                             onToggled: services.act(modelData.unit, checked ? "enable" : "disable", false)
                                         }
                                     }

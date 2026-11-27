@@ -29,10 +29,11 @@ Rectangle {
             font.pixelSize: 13
             color: theme.colors.brightForeground
         }
-        Button {
+        ActionButton {
+            kind: "ghost"
+            small: true
+            icon: "\uf00d"
             text: qsTr("Dismiss")
-            flat: true
-            focusPolicy: Qt.NoFocus
             onClicked: banner.dismissed()
         }
     }
