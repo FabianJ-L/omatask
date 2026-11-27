@@ -48,9 +48,16 @@ an app other than the compositor actually uses it.
 ## Build and install
 
 ```sh
+git clone https://github.com/FabianJ-L/omatask.git
+cd omatask
+bin/install    # builds, then installs it as a package so it shows up in the launcher (Super + Space)
+```
+
+For development:
+
+```sh
 bin/build      # build/omatask
 bin/test       # parser and model tests, offscreen
-bin/install    # makepkg -fsi: installs the binary, icon and launcher entry
 ```
 
 Needs `qt6-base`, `qt6-declarative` and `qt6-wayland`; `nvidia-utils` adds
