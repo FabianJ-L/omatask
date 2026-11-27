@@ -56,7 +56,7 @@ cd omatask
 bin/install    # builds, then installs it as a package so it shows up in the launcher (Super + Space)
 ```
 
-**Update:** run `oma-update`. Every Oma app (Omasql, OmaTask, Token Tally)
+**Update:** run `oma-update`. Every Oma app (Omasql, OmaTask, OmaTokens)
 installs it; it updates all of them at once, from GitHub.
 
 For development:
