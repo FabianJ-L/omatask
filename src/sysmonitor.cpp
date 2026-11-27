@@ -48,7 +48,7 @@ SysMonitor::SysMonitor(const QString &procRoot, const QString &sysRoot, QObject 
         }
     });
 
-    m_timer.setInterval(1000);
+    m_timer.setInterval(2000);
     connect(&m_timer, &QTimer::timeout, this, &SysMonitor::sample);
     m_timer.start();
     sample();

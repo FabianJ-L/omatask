@@ -28,11 +28,11 @@ ApplicationWindow {
     property alias page: sidebar.currentIndex
 
     readonly property var pages: [
-        { icon: "", title: qsTr("Processes") },
-        { icon: "", title: qsTr("Performance") },
-        { icon: "", title: qsTr("Sensors & battery") },
-        { icon: "", title: qsTr("Startup") },
-        { icon: "", title: qsTr("Services") }
+        { icon: "󰉹", title: qsTr("Processes") },
+        { icon: "󰄪", title: qsTr("Performance") },
+        { icon: "󰔏", title: qsTr("Sensors & battery") },
+        { icon: "󱓟", title: qsTr("Startup") },
+        { icon: "󰢻", title: qsTr("Services") }
     ]
 
     // Heavy work (the process scan, service lists) only runs for the page on screen.

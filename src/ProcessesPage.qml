@@ -87,7 +87,7 @@ FocusScope {
 
             FilterField {
                 id: search
-                Layout.preferredWidth: page.width < 760 ? 160 : 260
+                Layout.preferredWidth: page.width < 560 ? 140 : page.width < 760 ? 190 : 260
                 placeholderText: qsTr("Search name, command or PID")
                 text: processes.filter
                 onTextChanged: processes.filter = text

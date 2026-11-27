@@ -51,7 +51,10 @@ Item {
     }
     Label {
         anchors.left: input.left
+        anchors.right: parent.right
+        anchors.rightMargin: 10
         anchors.verticalCenter: parent.verticalCenter
+        elide: Text.ElideRight
         visible: input.text.length === 0
         text: field.placeholderText
         font.pixelSize: 13

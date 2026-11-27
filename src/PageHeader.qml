@@ -15,22 +15,28 @@ Item {
         anchors.leftMargin: 20
         anchors.rightMargin: 20
         spacing: 14
+        // The title gives way (and elides) before the controls get squeezed.
         ColumnLayout {
+            Layout.fillWidth: true
+            Layout.minimumWidth: 0
             spacing: 0
             Label {
+                Layout.fillWidth: true
+                elide: Text.ElideRight
                 text: header.title
                 font.pixelSize: 20
                 font.weight: Font.DemiBold
                 color: theme.colors.brightForeground
             }
             Label {
+                Layout.fillWidth: true
+                elide: Text.ElideRight
                 visible: header.subtitle.length > 0
                 text: header.subtitle
                 font.pixelSize: 12
                 color: theme.colors.mutedForeground
             }
         }
-        Item { Layout.fillWidth: true }
         RowLayout {
             id: tools
             spacing: 12
