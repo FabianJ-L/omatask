@@ -9,6 +9,8 @@ optdepends=('nvidia-utils: utilization, memory and temperature of NVIDIA GPUs')
 makedepends=('gcc' 'make')
 source=()
 sha256sums=()
+# Links oma-update, the updater every Oma app ships.
+install=oma-apps.install
 
 build() {
   cd "$startdir/.."
@@ -21,4 +23,9 @@ package() {
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   install -Dm644 "$startdir/omatask.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/omatask.svg"
   install -Dm644 "$startdir/omatask.desktop" "$pkgdir/usr/share/applications/omatask.desktop"
+  # oma-update and where this build came from, so it can update the app later.
+  install -Dm755 "$startdir/oma-update" "$pkgdir/usr/share/oma-apps/$pkgname/oma-update"
+  printf 'REPO=%s\nCOMMIT=%s\n' "https://github.com/FabianJ-L/$pkgname" \
+    "$(git -C "$startdir/.." rev-parse HEAD 2>/dev/null)" |
+    install -Dm644 /dev/stdin "$pkgdir/usr/share/oma-apps/$pkgname/source"
 }
