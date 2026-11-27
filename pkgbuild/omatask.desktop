@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=OmaTask
+GenericName=Task Manager
+GenericName[de]=Task-Manager
+Comment=See what uses your CPU, memory, GPU and battery, and end what misbehaves
+Comment[de]=Sehen, was CPU, Arbeitsspeicher, GPU und Akku belastet, und hängende Programme beenden
+Exec=omatask
+Icon=omatask
+Terminal=false
+Categories=System;Monitor;
+Keywords=task;manager;process;kill;cpu;memory;ram;gpu;performance;monitor;service;startup;battery;sensors;
+StartupWMClass=omatask

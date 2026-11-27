@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="Card.qml">Card.qml</file>
+        <file alias="ConfirmDialog.qml">ConfirmDialog.qml</file>
+        <file alias="ErrorBanner.qml">ErrorBanner.qml</file>
+        <file alias="HeaderCell.qml">HeaderCell.qml</file>
+        <file alias="HelpOverlay.qml">HelpOverlay.qml</file>
+        <file alias="Main.qml">Main.qml</file>
+        <file alias="PageHeader.qml">PageHeader.qml</file>
+        <file alias="PerformancePage.qml">PerformancePage.qml</file>
+        <file alias="ProcessesPage.qml">ProcessesPage.qml</file>
+        <file alias="FilterField.qml">FilterField.qml</file>
+        <file alias="Segmented.qml">Segmented.qml</file>
+        <file alias="SensorsPage.qml">SensorsPage.qml</file>
+        <file alias="ServicesPage.qml">ServicesPage.qml</file>
+        <file alias="SideBar.qml">SideBar.qml</file>
+        <file alias="StartupPage.qml">StartupPage.qml</file>
+        <file alias="StatGrid.qml">StatGrid.qml</file>
+        <file alias="UsageGraph.qml">UsageGraph.qml</file>
+        <file alias="ValueCell.qml">ValueCell.qml</file>
+        <file alias="i18n/en.json">i18n/en.json</file>
+        <file alias="i18n/de.json">i18n/de.json</file>
+    </qresource>
+</RCC>
