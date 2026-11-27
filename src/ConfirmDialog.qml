@@ -23,7 +23,7 @@ Popup {
 
     background: Rectangle {
         radius: ui.rLarge
-        color: ui.card
+        color: ui.cardSolid
         border.color: theme.colors.border
     }
     Overlay.modal: Rectangle { color: Qt.alpha(theme.colors.darkerBackground, 0.6) }

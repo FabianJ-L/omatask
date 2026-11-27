@@ -247,7 +247,7 @@ FocusScope {
                                             readonly property real modelData: cores.values[index] || 0
                                             width: (cores.width - (cores.columns - 1) * cores.spacing) / cores.columns
                                             height: (cores.height - (cores.rows - 1) * cores.spacing) / cores.rows
-                                            color: ui.canvas
+                                            color: Qt.alpha(theme.colors.darkBackground, 0.5)
                                             border.color: Qt.alpha(theme.accent, 0.5)
                                             radius: Math.min(4, theme.radius)
                                             Rectangle {

@@ -36,7 +36,7 @@ Rectangle {
         width: Math.min(600, overlay.width - 48)
         height: content.implicitHeight + 2 * ui.xl
         radius: ui.rLarge
-        color: ui.card
+        color: ui.cardSolid
         border.color: theme.colors.border
 
         ColumnLayout {

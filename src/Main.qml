@@ -11,7 +11,7 @@ ApplicationWindow {
     minimumHeight: 520
     visible: true
     title: "OmaTask"
-    color: ui.canvas
+    color: ui.window
 
     Material.theme: Material.Dark
     Material.accent: theme.accent

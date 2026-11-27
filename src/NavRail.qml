@@ -51,21 +51,6 @@ Rectangle {
         anchors.rightMargin: 1
         spacing: ui.xs
 
-        Rectangle {
-            Layout.alignment: Qt.AlignHCenter
-            Layout.bottomMargin: ui.m
-            implicitWidth: 34
-            implicitHeight: 34
-            radius: ui.rMed
-            color: theme.accent
-            Label {
-                anchors.centerIn: parent
-                text: "\u{F0430}"
-                font.family: win.iconFont
-                font.pixelSize: 18
-                color: theme.accentForeground
-            }
-        }
 
         Repeater {
             model: rail.model

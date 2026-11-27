@@ -26,10 +26,15 @@ QtObject {
     readonly property int rLarge: Math.min(12, theme.radius + 4)
 
     // Surfaces: the rail sits deepest, pages on the canvas, content in cards.
-    readonly property color rail: theme.colors.darkerBackground
-    readonly property color canvas: theme.colors.darkBackground
-    readonly property color card: theme.colors.background
-    readonly property color raised: theme.colors.lighterBackground
+    // The window itself is see-through like the terminal, so the compositor's
+    // blur shows behind it; the layers on top only tint it. Popups use the
+    // solid colors, since they sit over other content of the same window.
+    readonly property color window: Qt.alpha(theme.colors.darkBackground, 0.7)
+    readonly property color rail: Qt.alpha(theme.colors.darkerBackground, 0.45)
+    readonly property color canvas: "transparent"
+    readonly property color card: Qt.alpha(theme.colors.background, 0.55)
+    readonly property color cardSolid: theme.colors.background
+    readonly property color raised: Qt.alpha(theme.colors.lighterBackground, 0.8)
 
     // Sizes
     readonly property int row: 34
