@@ -14,11 +14,11 @@ Rectangle {
     RowLayout {
         id: row
         anchors.fill: parent
-        anchors.leftMargin: 20
-        anchors.rightMargin: 12
+        anchors.leftMargin: ui.xl
+        anchors.rightMargin: ui.m
         spacing: 12
         Label {
-            text: ""
+            text: "󰗖"
             font.family: win.iconFont
             color: theme.colors.red
         }
@@ -26,13 +26,13 @@ Rectangle {
             Layout.fillWidth: true
             text: banner.text
             wrapMode: Text.Wrap
-            font.pixelSize: 13
+            font.pixelSize: ui.body
             color: theme.colors.brightForeground
         }
         ActionButton {
             kind: "ghost"
             small: true
-            icon: "\uf00d"
+            icon: "\u{F0156}"
             text: qsTr("Dismiss")
             onClicked: banner.dismissed()
         }

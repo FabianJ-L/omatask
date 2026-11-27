@@ -18,23 +18,23 @@ Popup {
     width: Math.min(460, parent ? parent.width - 48 : 460)
     modal: true
     focus: true
-    padding: 24
+    padding: ui.xl
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
     background: Rectangle {
-        radius: Math.min(8, theme.radius)
-        color: theme.colors.lighterBackground
+        radius: ui.rLarge
+        color: ui.card
         border.color: theme.colors.border
     }
     Overlay.modal: Rectangle { color: Qt.alpha(theme.colors.darkerBackground, 0.6) }
 
     contentItem: ColumnLayout {
-        spacing: 14
+        spacing: ui.m
         Label {
             Layout.fillWidth: true
             text: dialog.title
             wrapMode: Text.Wrap
-            font.pixelSize: 16
+            font.pixelSize: ui.title + 1
             font.weight: Font.DemiBold
             color: theme.colors.brightForeground
         }
@@ -42,7 +42,7 @@ Popup {
             Layout.fillWidth: true
             text: dialog.message
             wrapMode: Text.Wrap
-            font.pixelSize: 13
+            font.pixelSize: ui.body
             color: theme.colors.foreground
         }
         RowLayout {
@@ -51,7 +51,7 @@ Popup {
             spacing: 8
             Item { Layout.fillWidth: true }
             ActionButton { kind: "ghost"; text: qsTr("Cancel"); onClicked: dialog.close() }
-            ActionButton { kind: "danger"; icon: ""; text: dialog.acceptText; onClicked: dialog.accept() }
+            ActionButton { kind: "danger"; icon: "󰅖"; text: dialog.acceptText; onClicked: dialog.accept() }
         }
     }
 

@@ -9,18 +9,23 @@
         <file alias="HelpOverlay.qml">HelpOverlay.qml</file>
         <file alias="Main.qml">Main.qml</file>
         <file alias="MenuEntry.qml">MenuEntry.qml</file>
+        <file alias="Meter.qml">Meter.qml</file>
         <file alias="PageHeader.qml">PageHeader.qml</file>
         <file alias="PerformancePage.qml">PerformancePage.qml</file>
         <file alias="ProcessesPage.qml">ProcessesPage.qml</file>
         <file alias="Segmented.qml">Segmented.qml</file>
         <file alias="SensorsPage.qml">SensorsPage.qml</file>
         <file alias="ServicesPage.qml">ServicesPage.qml</file>
-        <file alias="SideBar.qml">SideBar.qml</file>
+        <file alias="NavRail.qml">NavRail.qml</file>
         <file alias="StartupPage.qml">StartupPage.qml</file>
+        <file alias="SpeedPicker.qml">SpeedPicker.qml</file>
         <file alias="StatGrid.qml">StatGrid.qml</file>
+        <file alias="StatusStrip.qml">StatusStrip.qml</file>
+        <file alias="Style.qml">Style.qml</file>
         <file alias="Toggle.qml">Toggle.qml</file>
         <file alias="UsageGraph.qml">UsageGraph.qml</file>
         <file alias="ValueCell.qml">ValueCell.qml</file>
+        <file alias="VimKeys.qml">VimKeys.qml</file>
         <file alias="i18n/en.json">i18n/en.json</file>
         <file alias="i18n/de.json">i18n/de.json</file>
     </qresource>

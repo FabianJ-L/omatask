@@ -1,4 +1,5 @@
 {
+  "%n devices": { "one": "%n device", "other": "%n devices" },
   "%n entries": { "one": "%n entry", "other": "%n entries" },
   "%n processes": { "one": "%n process", "other": "%n processes" },
   "%n services": { "one": "%n service", "other": "%n services" }

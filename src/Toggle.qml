@@ -1,13 +1,13 @@
 import QtQuick
 import QtQuick.Controls
 
-// A compact on/off switch with an optional label, sized to sit in a 36 px row.
+// A compact on/off switch with an optional label, sized to sit in a control row.
 Item {
     id: toggle
     property bool checked: false
     property string text
     signal toggled()
-    implicitHeight: 36
+    implicitHeight: ui.control
     implicitWidth: track.width + (label.visible ? label.implicitWidth + 10 : 0)
     opacity: enabled ? 1 : 0.4
 
@@ -38,7 +38,7 @@ Item {
         anchors.leftMargin: 10
         anchors.verticalCenter: parent.verticalCenter
         text: toggle.text
-        font.pixelSize: 13
+        font.pixelSize: ui.body
         color: theme.colors.foreground
     }
     HoverHandler { cursorShape: Qt.PointingHandCursor }

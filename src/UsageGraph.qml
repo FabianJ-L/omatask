@@ -45,15 +45,11 @@ Item {
             const ctx = getContext("2d")
             ctx.reset()
             if (graph.grid) {
-                ctx.strokeStyle = Qt.alpha(theme.colors.border, 0.6)
+                ctx.strokeStyle = Qt.alpha(theme.colors.border, 0.35)
                 ctx.lineWidth = 1
                 for (let i = 1; i < 4; ++i) {
                     const y = Math.round(height * i / 4) + 0.5
                     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke()
-                }
-                for (let i = 1; i < 10; ++i) {
-                    const x = Math.round(width * i / 10) + 0.5
-                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke()
                 }
             }
         }
@@ -117,6 +113,6 @@ Item {
         visible: graph.framed
         anchors.fill: parent
         color: "transparent"
-        border.color: Qt.alpha(graph.color, 0.55)
+        border.color: Qt.alpha(theme.colors.border, 0.5)
     }
 }

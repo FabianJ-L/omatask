@@ -13,13 +13,15 @@ Rectangle {
 
     readonly property var shortcuts: [
         ["1 – 5", qsTr("Processes, Performance, Sensors, Startup, Services")],
-        ["Ctrl+Tab", qsTr("Next page")],
+        ["Ctrl+Tab · Ctrl+L / H", qsTr("Next or previous page")],
         ["/", qsTr("Search")],
-        ["↑ ↓", qsTr("Move through the list")],
-        ["→ ← / Enter", qsTr("Expand or collapse an app")],
-        ["Del", qsTr("End the selected task")],
-        ["Shift+Del", qsTr("Force the selected task to end")],
-        ["G", qsTr("Group processes by app, or list them all")],
+        ["j k · ↑ ↓", qsTr("Move through the list")],
+        ["gg · G", qsTr("Jump to the top or the bottom")],
+        ["Ctrl+D · Ctrl+U", qsTr("Half a page down or up")],
+        ["l h · → ←", qsTr("Expand or collapse an app")],
+        ["x · Del", qsTr("End the selected task")],
+        ["X · Shift+Del", qsTr("Force the selected task to end")],
+        ["A", qsTr("Group processes by app, or list them all")],
         ["C", qsTr("Overall CPU or every logical processor")],
         ["S / R", qsTr("Start or stop, restart the selected service")],
         ["Space", qsTr("Pause or resume updates")],
@@ -32,26 +34,26 @@ Rectangle {
     Rectangle {
         anchors.centerIn: parent
         width: Math.min(600, overlay.width - 48)
-        height: content.implicitHeight + 56
-        radius: Math.min(8, theme.radius)
-        color: theme.colors.lighterBackground
+        height: content.implicitHeight + 2 * ui.xl
+        radius: ui.rLarge
+        color: ui.card
         border.color: theme.colors.border
 
         ColumnLayout {
             id: content
             anchors.fill: parent
-            anchors.margins: 28
-            spacing: 16
+            anchors.margins: ui.xl
+            spacing: ui.l
             Label {
                 text: qsTr("Keyboard shortcuts")
-                font.pixelSize: 18
+                font.pixelSize: ui.h2 - 2
                 font.weight: Font.DemiBold
                 color: theme.colors.brightForeground
             }
             GridLayout {
                 columns: 2
-                columnSpacing: 24
-                rowSpacing: 7
+                columnSpacing: ui.xl
+                rowSpacing: ui.s
                 Repeater {
                     model: overlay.shortcuts.length * 2
                     delegate: Text {
@@ -61,7 +63,7 @@ Rectangle {
                         text: entry[index % 2]
                         color: index % 2 ? theme.colors.foreground : theme.accent
                         font.family: index % 2 ? Qt.application.font.family : win.mono
-                        font.pixelSize: 13
+                        font.pixelSize: ui.body
                         wrapMode: Text.Wrap
                     }
                 }

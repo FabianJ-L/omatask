@@ -9,10 +9,10 @@ Rectangle {
     property int current: 0
     property bool small: false
     signal picked(int index)
-    implicitHeight: small ? 28 : 36
+    implicitHeight: small ? 28 : ui.control
     implicitWidth: row.implicitWidth + 6
-    radius: Math.min(6, theme.radius)
-    color: theme.colors.darkBackground
+    radius: ui.rMed
+    color: ui.card
     border.color: theme.colors.border
 
     RowLayout {
@@ -28,7 +28,7 @@ Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 implicitWidth: label.implicitWidth + (seg.small ? 14 : 24)
-                radius: Math.min(4, theme.radius)
+                radius: ui.rSmall
                 color: seg.current === index ? theme.accent : hover.hovered ? theme.colors.lighterBackground : "transparent"
                 Label {
                     id: label

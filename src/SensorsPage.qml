@@ -19,6 +19,22 @@ FocusScope {
         return out
     }
 
+
+    // j and k scroll a row, Ctrl+d and Ctrl+u half a page, gg and G to the ends.
+    function scrollBy(dy) {
+        flick.contentY = Math.max(0, Math.min(flick.contentHeight - flick.height, flick.contentY + dy))
+    }
+    VimKeys {
+        id: vim
+        down: () => page.scrollBy(40)
+        up: () => page.scrollBy(-40)
+        top: () => page.scrollBy(-flick.contentHeight)
+        bottom: () => page.scrollBy(flick.contentHeight)
+        halfDown: () => page.scrollBy(flick.height / 2)
+        halfUp: () => page.scrollBy(-flick.height / 2)
+    }
+    Keys.onPressed: event => { if (vim.handle(event)) event.accepted = true }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
@@ -29,24 +45,26 @@ FocusScope {
         }
 
         Flickable {
+            id: flick
             Layout.fillWidth: true
             Layout.fillHeight: true
-            contentHeight: content.implicitHeight + 40
+            contentHeight: content.implicitHeight + ui.xl
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             ScrollBar.vertical: ScrollBar {}
 
             GridLayout {
                 id: content
-                x: 20
-                width: parent.width - 40
-                columns: width > 900 ? 2 : 1
-                columnSpacing: 20
-                rowSpacing: 20
+                x: ui.xl
+                width: parent.width - 2 * ui.xl
+                columns: width > 860 ? 2 : 1
+                columnSpacing: ui.l
+                rowSpacing: ui.l
 
                 Card {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
+                    Layout.columnSpan: content.columns
                     visible: page.battery.present === true
                     title: qsTr("Battery")
                     ColumnLayout {
@@ -63,23 +81,16 @@ FocusScope {
                             ColumnLayout {
                                 spacing: 2
                                 Label { text: page.battery.statusText || ""; font.pixelSize: 14; color: page.battery.charging ? theme.colors.green : theme.colors.foreground }
-                                Label { visible: (page.battery.remainingText || "").length > 0; text: page.battery.charging ? qsTr("Full in %1").arg(page.battery.remainingText) : qsTr("%1 left").arg(page.battery.remainingText); font.pixelSize: 13; color: theme.colors.lightForeground }
+                                Label { visible: (page.battery.remainingText || "").length > 0; text: page.battery.charging ? qsTr("Full in %1").arg(page.battery.remainingText) : qsTr("%1 left").arg(page.battery.remainingText); font.pixelSize: ui.body; color: theme.colors.lightForeground }
                             }
                         }
-                        Rectangle {
+                        Meter {
                             Layout.fillWidth: true
-                            height: 10
-                            radius: 5
-                            color: theme.colors.darkBackground
-                            Rectangle {
-                                width: parent.width * Math.min(1, (page.battery.percent || 0) / 100)
-                                Behavior on width { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
-                                height: parent.height
-                                radius: 5
-                                color: page.battery.charging ? theme.colors.green : (page.battery.percent || 0) <= 15 ? theme.colors.red : theme.accent
-                            }
+                            implicitHeight: 8
+                            value: (page.battery.percent || 0) / 100
+                            tone: page.battery.charging ? theme.colors.green : (page.battery.percent || 0) <= 15 ? theme.colors.red : theme.accent
                         }
-                        Label { text: qsTr("Power over the last minute"); font.pixelSize: 12; color: theme.colors.mutedForeground }
+                        Label { text: qsTr("Power over the last minute"); font.pixelSize: ui.small; color: theme.colors.mutedForeground }
                         UsageGraph {
                             scrolling: true
                             Layout.fillWidth: true
@@ -96,8 +107,8 @@ FocusScope {
                     }
                 }
 
-                // By count: cards and bars survive each sample and animate
-                // from their previous value.
+                // By count: cards and bars survive each sample instead of
+                // being rebuilt.
                 Repeater {
                     model: page.groups.length
                     delegate: Card {
@@ -108,7 +119,7 @@ FocusScope {
                         title: modelData.chip
                         ColumnLayout {
                             width: parent.width
-                            spacing: 10
+                            spacing: ui.m
                             Repeater {
                                 id: items
                                 readonly property var list: modelData.items
@@ -119,9 +130,9 @@ FocusScope {
                                     Layout.fillWidth: true
                                     spacing: 12
                                     Label {
-                                        text: modelData.kind === "fan" ? "\u{F0210}" : "\uf2c9"
+                                        text: modelData.kind === "fan" ? "\u{F0210}" : "\u{F050F}"
                                         font.family: win.iconFont
-                                        font.pixelSize: 13
+                                        font.pixelSize: ui.body
                                         Layout.preferredWidth: 16
                                         color: theme.colors.mutedForeground
                                     }
@@ -129,29 +140,22 @@ FocusScope {
                                         Layout.preferredWidth: 150
                                         text: modelData.label
                                         elide: Text.ElideRight
-                                        font.pixelSize: 13
+                                        font.pixelSize: ui.body
                                         color: theme.colors.foreground
                                     }
-                                    Rectangle {
+                                    Meter {
                                         Layout.fillWidth: true
-                                        height: 6
-                                        radius: 3
-                                        color: theme.colors.darkBackground
-                                        Rectangle {
-                                            width: parent.width * modelData.fraction
-                                            height: parent.height
-                                            radius: 3
-                                            color: modelData.level === 2 ? theme.colors.red : modelData.level === 1 ? theme.colors.yellow
-                                                 : modelData.kind === "fan" ? theme.colors.cyan : theme.accent
-                                            Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
-                                        }
+                                        implicitHeight: 6
+                                        value: modelData.fraction || 0
+                                        tone: modelData.level === 2 ? theme.colors.red : modelData.level === 1 ? theme.colors.yellow
+                                             : modelData.kind === "fan" ? theme.colors.cyan : theme.accent
                                     }
                                     Label {
                                         Layout.preferredWidth: 80
                                         horizontalAlignment: Text.AlignRight
                                         text: modelData.text
                                         font.family: win.mono
-                                        font.pixelSize: 13
+                                        font.pixelSize: ui.body
                                         color: modelData.level === 2 ? theme.colors.red : modelData.level === 1 ? theme.colors.yellow : theme.colors.brightForeground
                                     }
                                 }

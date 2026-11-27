@@ -8,7 +8,7 @@ Item {
     property alias text: input.text
     property string placeholderText
     signal accepted()
-    implicitHeight: 36
+    implicitHeight: ui.control
     implicitWidth: 220
 
     // Drawn at a fixed height, whatever height the surrounding layout gives.
@@ -17,9 +17,9 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
-        height: 36
-        radius: Math.min(6, theme.radius)
-        color: theme.colors.darkBackground
+        height: ui.control
+        radius: ui.rMed
+        color: ui.card
         border.color: input.activeFocus ? theme.accent : theme.colors.border
     }
 
@@ -30,9 +30,9 @@ Item {
         anchors.left: parent.left
         anchors.leftMargin: 10
         anchors.verticalCenter: parent.verticalCenter
-        text: ""
+        text: "󰍉"
         font.family: win.iconFont
-        font.pixelSize: 12
+        font.pixelSize: ui.small
         color: theme.colors.mutedForeground
     }
     TextInput {
@@ -44,7 +44,7 @@ Item {
         color: theme.colors.brightForeground
         selectionColor: theme.colors.selection
         selectedTextColor: theme.colors.brightForeground
-        font.pixelSize: 13
+        font.pixelSize: ui.body
         clip: true
         Keys.forwardTo: [field]
         onAccepted: field.accepted()
@@ -57,7 +57,7 @@ Item {
         elide: Text.ElideRight
         visible: input.text.length === 0
         text: field.placeholderText
-        font.pixelSize: 13
+        font.pixelSize: ui.body
         color: theme.colors.mutedForeground
     }
     Label {
@@ -67,9 +67,9 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         visible: input.text.length > 0
         width: visible ? implicitWidth : 0
-        text: ""
+        text: "󰅖"
         font.family: win.iconFont
-        font.pixelSize: 12
+        font.pixelSize: ui.small
         color: theme.colors.lightForeground
         TapHandler { onTapped: input.text = "" }
     }

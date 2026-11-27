@@ -13,6 +13,22 @@ FocusScope {
         { kind: "xdg", title: qsTr("XDG autostart"), hint: qsTr("Desktop entries in ~/.config/autostart and /etc/xdg/autostart.") }
     ]
 
+
+    // j and k scroll a row, Ctrl+d and Ctrl+u half a page, gg and G to the ends.
+    function scrollBy(dy) {
+        flick.contentY = Math.max(0, Math.min(flick.contentHeight - flick.height, flick.contentY + dy))
+    }
+    VimKeys {
+        id: vim
+        down: () => page.scrollBy(40)
+        up: () => page.scrollBy(-40)
+        top: () => page.scrollBy(-flick.contentHeight)
+        bottom: () => page.scrollBy(flick.contentHeight)
+        halfDown: () => page.scrollBy(flick.height / 2)
+        halfUp: () => page.scrollBy(-flick.height / 2)
+    }
+    Keys.onPressed: event => { if (vim.handle(event)) event.accepted = true }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
@@ -21,22 +37,23 @@ FocusScope {
             title: qsTr("Startup")
             subtitle: qsTr("%n entries", "", services.startup.length)
             BusyIndicator { running: services.busy; visible: running; Layout.preferredHeight: 28; Layout.preferredWidth: 28 }
-            ActionButton { icon: "\uf021"; text: qsTr("Refresh"); onClicked: services.refreshStartup() }
+            ActionButton { icon: "\u{F0450}"; text: qsTr("Refresh"); onClicked: services.refreshStartup() }
         }
 
         Flickable {
+            id: flick
             Layout.fillWidth: true
             Layout.fillHeight: true
-            contentHeight: col.implicitHeight + 30
+            contentHeight: col.implicitHeight + ui.xl
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             ScrollBar.vertical: ScrollBar {}
 
             ColumnLayout {
                 id: col
-                x: 20
-                width: parent.width - 40
-                spacing: 20
+                x: ui.xl
+                width: parent.width - 2 * ui.xl
+                spacing: ui.l
                 Repeater {
                     model: page.sections
                     delegate: Card {
@@ -45,16 +62,17 @@ FocusScope {
                         readonly property var entries: services.startup.filter(e => e.kind === modelData.kind)
                         Layout.fillWidth: true
                         visible: entries.length > 0
-                        title: modelData.title + "  (" + entries.length + ")"
+                        title: modelData.title
+                        subtitle: String(entries.length)
                         ColumnLayout {
                             width: parent.width
                             spacing: 2
                             Label {
                                 Layout.fillWidth: true
-                                Layout.bottomMargin: 8
+                                Layout.bottomMargin: ui.s
                                 text: card.modelData.hint
                                 wrapMode: Text.Wrap
-                                font.pixelSize: 12
+                                font.pixelSize: ui.small
                                 color: theme.colors.mutedForeground
                             }
                             Repeater {
@@ -62,15 +80,15 @@ FocusScope {
                                 delegate: Rectangle {
                                     required property var modelData
                                     Layout.fillWidth: true
-                                    Layout.preferredHeight: 48
-                                    radius: Math.min(4, theme.radius)
-                                    color: entryHover.hovered ? theme.colors.lighterBackground : "transparent"
+                                    Layout.preferredHeight: 50
+                                    radius: ui.rMed
+                                    color: entryHover.hovered ? ui.raised : "transparent"
                                     HoverHandler { id: entryHover }
                                     RowLayout {
                                         anchors.fill: parent
-                                        anchors.leftMargin: 8
-                                        anchors.rightMargin: 8
-                                        spacing: 12
+                                        anchors.leftMargin: ui.m
+                                        anchors.rightMargin: ui.m
+                                        spacing: ui.m
                                         Rectangle {
                                             width: 8; height: 8; radius: 4
                                             color: modelData.enabled ? theme.colors.green : theme.colors.mutedForeground
@@ -82,7 +100,7 @@ FocusScope {
                                                 Layout.fillWidth: true
                                                 text: modelData.name
                                                 elide: Text.ElideRight
-                                                font.pixelSize: 13
+                                                font.pixelSize: ui.body
                                                 color: modelData.enabled ? theme.colors.brightForeground : theme.colors.mutedForeground
                                             }
                                             Label {
@@ -90,14 +108,14 @@ FocusScope {
                                                 text: modelData.kind === "systemd" ? modelData.command : modelData.command + "   ·   " + modelData.source
                                                 elide: Text.ElideMiddle
                                                 font.family: win.mono
-                                                font.pixelSize: 11
+                                                font.pixelSize: ui.caption
                                                 color: theme.colors.mutedForeground
                                             }
                                         }
                                         Label {
                                             visible: !modelData.toggleable
                                             text: modelData.enabled ? qsTr("Enabled") : qsTr("Disabled")
-                                            font.pixelSize: 12
+                                            font.pixelSize: ui.small
                                             color: theme.colors.lightForeground
                                         }
                                         Toggle {

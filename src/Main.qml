@@ -7,11 +7,11 @@ ApplicationWindow {
     id: win
     width: 1180
     height: 760
-    minimumWidth: 860
+    minimumWidth: 640
     minimumHeight: 520
     visible: true
     title: "OmaTask"
-    color: theme.colors.background
+    color: ui.canvas
 
     Material.theme: Material.Dark
     Material.accent: theme.accent
@@ -20,12 +20,12 @@ ApplicationWindow {
     Material.primary: theme.colors.lighterBackground
     Material.roundedScale: theme.radius
 
+    Style { id: ui }
+
     readonly property string mono: "monospace"
     readonly property string iconFont: "JetBrainsMono Nerd Font"
     property bool helpVisible: false
-    // Tiled windows are often half a screen wide; the sidebar shrinks to icons then.
-    readonly property bool compact: width < 1000
-    property alias page: sidebar.currentIndex
+    property alias page: rail.currentIndex
 
     readonly property var pages: [
         { icon: "󰉹", title: qsTr("Processes") },
@@ -61,11 +61,9 @@ ApplicationWindow {
         LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
         LayoutMirroring.childrenInherit: true
 
-        SideBar {
-            id: sidebar
+        NavRail {
+            id: rail
             Layout.fillHeight: true
-            Layout.preferredWidth: win.compact ? 64 : 220
-            compact: win.compact
             model: win.pages
         }
 
@@ -74,13 +72,20 @@ ApplicationWindow {
             Layout.fillHeight: true
             spacing: 0
 
+            // The Performance page shows these values as tiles already.
+            StatusStrip {
+                visible: win.page !== 1
+                Layout.fillWidth: true
+                onDeviceClicked: id => { performance.selectedId = id; win.page = 1 }
+            }
+
             StackLayout {
                 id: stack
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 currentIndex: win.page
                 ProcessesPage {}
-                PerformancePage {}
+                PerformancePage { id: performance }
                 SensorsPage {}
                 StartupPage {}
                 ServicesPage {}
@@ -107,6 +112,8 @@ ApplicationWindow {
     Shortcut { sequence: "5"; context: Qt.ApplicationShortcut; enabled: !win.typing(); onActivated: win.page = 4 }
     Shortcut { sequence: "Ctrl+Tab"; context: Qt.ApplicationShortcut; onActivated: win.page = (win.page + 1) % 5 }
     Shortcut { sequence: "Ctrl+Shift+Tab"; context: Qt.ApplicationShortcut; onActivated: win.page = (win.page + 4) % 5 }
+    Shortcut { sequence: "Ctrl+L"; context: Qt.ApplicationShortcut; onActivated: win.page = (win.page + 1) % 5 }
+    Shortcut { sequence: "Ctrl+H"; context: Qt.ApplicationShortcut; onActivated: win.page = (win.page + 4) % 5 }
     Shortcut { sequence: "Space"; context: Qt.ApplicationShortcut; enabled: !win.typing(); onActivated: monitor.paused = !monitor.paused }
     Shortcut { sequences: ["?", "F1"]; context: Qt.ApplicationShortcut; enabled: !win.typing() || win.helpVisible; onActivated: win.helpVisible = !win.helpVisible }
     Shortcut { sequence: "Q"; context: Qt.ApplicationShortcut; enabled: !win.typing(); onActivated: Qt.quit() }

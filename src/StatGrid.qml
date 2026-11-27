@@ -6,7 +6,8 @@ import QtQuick.Layouts
 Flow {
     id: flow
     property var stats: []
-    spacing: 22
+    property int cellWidth: 160
+    spacing: ui.l
     // Indexed by count, so values update in place instead of every row
     // being recreated (and flickering) on each sample.
     Repeater {
@@ -14,11 +15,11 @@ Flow {
         delegate: ColumnLayout {
             required property int index
             readonly property var modelData: flow.stats[index] || ["", ""]
-            width: Math.max(150, valueLabel.implicitWidth)
-            spacing: 1
+            width: Math.max(flow.cellWidth, valueLabel.implicitWidth)
+            spacing: 2
             Label {
                 text: modelData[0]
-                font.pixelSize: 12
+                font.pixelSize: ui.small
                 color: theme.colors.mutedForeground
                 elide: Text.ElideRight
                 Layout.maximumWidth: 260
@@ -26,7 +27,7 @@ Flow {
             Label {
                 id: valueLabel
                 text: modelData[1]
-                font.pixelSize: 15
+                font.pixelSize: ui.title
                 color: theme.colors.brightForeground
             }
         }
